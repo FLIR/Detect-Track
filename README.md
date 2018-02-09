@@ -17,11 +17,14 @@ Tested with Matlab R2017b, Ubuntu 16.04, cuda 8.0, GTX-1080Ti GPU
    version of opencv, while matlab mex builds with it's own version (3.1.0). Millions of link errors result when 
    you try to run the matlab mex code. The workaround used here is to first build opencv version 3.1.0, 
    and link caffe-rfcn with it.
+5. Matlab needs a recent libprotobuf (3.3.1 works)
+6. When you run a test or training script a second time, matlab crashes with:
+    ```[libprotobuf ERROR google/protobuf/descriptor_database.cc:57] File already exists in database: caffe.proto```
+   Very annoying.  Possible fix: compile protobuf with ./configure --enable-shared --with-pic
    
 ## Ubuntu Notes
 
-1. These instructions assume your system already has caffe dependencies installed. 
-2. You need a recent libprotobuf (3.3.1 works)
+1. These instructions assume your system already has all required caffe dependencies installed. 
 
 ## OpenCV 3.1.0 build
 
@@ -38,8 +41,9 @@ As mentioned above, we need to build OpenCV 3.1.0 in order to match the matlab b
    mkdir install
    mkdir build
    cd build
-   cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/jimk/git/opencv_3_1_0/install ../opencv
+   cmake -DCMAKE_INSTALL_PREFIX:PATH=$(HOME)/git/opencv_3_1_0/install ../opencv
    make -j8
+   make install
 
 ```
 
@@ -52,7 +56,8 @@ As mentioned above, we need to build OpenCV 3.1.0 in order to match the matlab b
 4. Makefile.config needs to know where you built opencv (headers and libs)
 
 ```
-cd caffe-rfcn 
+git clone 
+cd ~/git/caffe-rfcn 
 make -j8
 make pycaffe
 make matcaffe
@@ -64,14 +69,30 @@ make matcaffe
 ## Getting data
 
 1. You need ILSVRC2015 data, both DET and VID.  These are huge. 48 Gbytes and 86 Gbytes respectively.
-   It takes several days to get them from imagenet, so there are copies on the FLIR S3 bucket.
+   It takes many days to get them from imagenet, so there are copies on the FLIR S3 bucket.
    flir-data/imagenet-det
    flir-data/imagenet-vid
+
+   From detect-track home directory:
+  
+```
+unzip /mnt/data/flir-data/imagenet-vid/ILSVRC2015_VID.tar.gz
+ln -s /mnt/data/flir-data/imagenet-vid/ILSVRC2015/Annotations data/ILSVRC/Annotations
+ln -s /mnt/data/flir-data/imagenet-vid/ILSVRC2015/Data data/ILSVRC/Data
+ln -s  mnt/data/flir-data/imagenet-vid/ILSVRC2015/ImageSets data/ILSVRC/ImageSets
+```
 
 ## Getting propososals and pretrained models
 
 1. You can get these from the authors website or the FLIR S3 bucket:
     flir-data/detect-track
+    
+    From detect-track home directory:
+    ```
+    unzip /mnt/data/flir-data/detect-track/proposals/RPN_proposals_DET.zip data/ILSVRC/Data/DET/RPN_proposals
+    unzip /mnt/data/flir-data/detect-track/proposals/RPN_proposals_VID_train.zip data/ILSVRC/Data/VID_train/RPN_proposals
+    unzip /mnt/data/flir-data/detect-track/proposals/RPN_proposals_VID_val.zip data/ILSVRC/Data/VID_val/RPN_proposals
+    ```
  
  ## Setting up detect-track
  
@@ -79,7 +100,7 @@ make matcaffe
  2. Compile mex code by running ```rfcn_build.m```.
  3. Set matlab paths by running ```startup.m```.
 
-# Once you get this far, proceed to Training, Testing below.
+## Once you get this far, proceed to Training, Testing below.
  
 ===============================================================================
 # Detect to Track and Track to Detect  (The Original Readme)
