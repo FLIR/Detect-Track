@@ -1,4 +1,43 @@
 ===============================================================================
+# FLIR fork  
+
+## Matlab notes
+
+Tested with R2017b, Ubuntu 16.04
+
+1. You need the parallel processing toolbox.
+2. Matlab mex spews warnings that it uses gcc 4.9, and Ubuntu uses 5.4.0.  Ignore
+   these warnings. You will explicitly specify libstc++ using LD_PRELOAD, and you 
+   will launch matlab from a command shell where LD_PRELOAD is exported.
+3. Start a command shell. In the shell (or in .bashrc) run the following:
+   export LD_PRELOAD=$LD_PRELOAD:/usr/lib/x86_64-linux-gnu/libstdc++.so.6:/usr/local/lib/libprotobuf.so.13
+3. Launch matlab from the command line (you might need to create a symbolic link)
+   ln -s /usr/local/MATLAB/R2017b/bin/matlab /usr/bin/matlab
+   
+## Ubuntu Notes
+
+1. These instructions assume your system already has caffe dependencies installed. 
+2. You need a recent libprotobuf (3.1 or later i think)
+
+## Downloading and building detect-track and caffe-rfcn:
+
+1. To download the code, and link the two repositories: run clone.sh 
+2. make or cmake?
+
+## Getting data
+
+1. You need ILSVRC2015 data, both DET and VID.  These are huge. 48 Gbytes and 86 Gbytes respectively.
+   It takes forever to get them from imagenet, so there are copies on the FLIR S3 bucket.
+   flir-data/imagenet-det
+   flir-data/imagenet-vid
+
+## Getting propososals and pretrained models
+
+1. You can get these from the authors website, or the FLIR S3 bucket:
+    flir-data/detect-track
+ 
+
+===============================================================================
 # Detect to Track and Track to Detect
 
 This repository contains the code for our ICCV 2017 paper:
