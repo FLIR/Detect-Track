@@ -1,11 +1,11 @@
 ===============================================================================
 # FLIR fork  
 
+Tested with Matlab R2017b, Ubuntu 16.04, cuda 8.0, GTX-1080Ti GPU
+
 ## Matlab notes
 
-Tested with R2017b, Ubuntu 16.04
-
-1. You need the parallel processing toolbox.
+1. You must purchase the parallel processing toolbox.
 2. Matlab mex spews warnings that it uses gcc 4.9, and Ubuntu uses 5.4.0.  Ignore
    these warnings. You will explicitly specify libstc++ using LD_PRELOAD, and you 
    will launch matlab from a command shell where LD_PRELOAD is exported.
@@ -13,32 +13,76 @@ Tested with R2017b, Ubuntu 16.04
    export LD_PRELOAD=$LD_PRELOAD:/usr/lib/x86_64-linux-gnu/libstdc++.so.6:/usr/local/lib/libprotobuf.so.13
 3. Launch matlab from the command line (you might need to create a symbolic link)
    ln -s /usr/local/MATLAB/R2017b/bin/matlab /usr/bin/matlab
+4. Matlab has openCV binaries bundled into R2017b. This is awful, because caffe-rfcn builds with the system
+   version of opencv, while matlab mex builds with it's own version (3.1.0). Millions of link errors result when 
+   you try to run the matlab mex code. The workaround used here is to first build opencv version 3.1.0, 
+   and link caffe-rfcn with it.
    
 ## Ubuntu Notes
 
 1. These instructions assume your system already has caffe dependencies installed. 
-2. You need a recent libprotobuf (3.1 or later i think)
+2. You need a recent libprotobuf (3.3.1 works)
 
-## Downloading and building detect-track and caffe-rfcn:
+## OpenCV 3.1.0 build
+
+As mentioned above, we need to build OpenCV 3.1.0 in order to match the matlab binaries. 
+
+1. Two modules don't compile, (cudalegacy and stitching) so disable them
+2. Don't install in /usr/local
+
+```
+   git clone https://github.com/opencv/opencv.git
+   git checkout tags/3.1.0
+   rm opencv/modules/cudalegacy/CMakeLists.txt
+   rm opencv/modules/stitching/CMakeLists.txt
+   mkdir install
+   mkdir build
+   cd build
+   cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/jimk/git/opencv_3_1_0/install ../opencv
+   make -j8
+
+```
+
+## Building caffe-rfcn:
 
 1. To download the code, and link the two repositories: run clone.sh 
-2. make or cmake?
+2. The repository assumes really old versions of cudnn, so build without cudnn
+3. Using Makefile.config and Makefile to build, instead of cmake, because cmake doesn't know 
+   how to compile caffe mex file ( mex include and link directories and flags are missing from CMakeList.txt )
+4. Makefile.config needs to know where you built opencv (headers and libs)
+
+```
+cd caffe-rfcn 
+make -j8
+make pycaffe
+make matcaffe
+```
+
+3. Note that running make mattest will fail.  It should at least load a prototext file, without getting link errors
+   before failing (and crashing matlab).
 
 ## Getting data
 
 1. You need ILSVRC2015 data, both DET and VID.  These are huge. 48 Gbytes and 86 Gbytes respectively.
-   It takes forever to get them from imagenet, so there are copies on the FLIR S3 bucket.
+   It takes several days to get them from imagenet, so there are copies on the FLIR S3 bucket.
    flir-data/imagenet-det
    flir-data/imagenet-vid
 
 ## Getting propososals and pretrained models
 
-1. You can get these from the authors website, or the FLIR S3 bucket:
+1. You can get these from the authors website or the FLIR S3 bucket:
     flir-data/detect-track
  
+ ## Setting up detect-track
+ 
+ 1. Start matlab. Don't forget LD_PRELOAD...
+ 2. Compile mex code by running ```rfcn_build.m```.
+ 3. Set matlab paths by running ```startup.m```.
 
+# Once you get this far, proceed to Training, Testing below.
+ 
 ===============================================================================
-# Detect to Track and Track to Detect
+# Detect to Track and Track to Detect  (The Original Readme)
 
 This repository contains the code for our ICCV 2017 paper:
 
