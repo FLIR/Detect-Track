@@ -33,7 +33,9 @@ As mentioned above, we need to build OpenCV 3.1.0 in order to match the matlab b
 1. Two modules don't compile, (cudalegacy and stitching) so disable them
 2. Don't install in /usr/local
 
-```
+```cd ~/git
+   mkdir opencv_3_1_0
+   cd opencv_3_1_0
    git clone https://github.com/opencv/opencv.git
    git checkout tags/3.1.0
    rm opencv/modules/cudalegacy/CMakeLists.txt
@@ -93,6 +95,9 @@ ln -s  mnt/data/flir-data/imagenet-vid/ILSVRC2015/ImageSets data/ILSVRC/ImageSet
     unzip /mnt/data/flir-data/detect-track/proposals/RPN_proposals_VID_train.zip data/ILSVRC/Data/VID_train/RPN_proposals
     unzip /mnt/data/flir-data/detect-track/proposals/RPN_proposals_VID_val.zip data/ILSVRC/Data/VID_val/RPN_proposals
     ```
+    
+2. Pretrained models are downloaded automatically if they don't exist already in the models directory
+   ````check_dl_model(model.net_file);````
  
  ## Setting up detect-track
  
