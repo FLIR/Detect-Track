@@ -55,7 +55,7 @@ As mentioned above, we need to build OpenCV 3.1.0 in order to match the matlab b
 2. The repository assumes really old versions of cudnn, so build without cudnn
 3. Using Makefile.config and Makefile to build, instead of cmake, because cmake doesn't know 
    how to compile caffe mex file ( mex include and link directories and flags are missing from CMakeList.txt )
-4. Makefile.config needs to know where you built opencv (headers and libs)
+4. Makefile.config needs to be updated to know where you built opencv (headers and libs)
 
 ```
 git clone 
@@ -75,10 +75,11 @@ make matcaffe
    flir-data/imagenet-det
    flir-data/imagenet-vid
 
-   From detect-track home directory:
+   From detect-track root directory:
   
 ```
-unzip /mnt/data/flir-data/imagenet-vid/ILSVRC2015_VID.tar.gz
+tar -xvf /mnt/data/flir-data/imagenet-vid/ILSVRC2015_VID.tar.gz
+tar -xvf /mnt/data/flir-data/imagenet-vid/ILSVRC2015_DET.tar.gz
 ln -s /mnt/data/flir-data/imagenet-vid/ILSVRC2015/Annotations data/ILSVRC/Annotations
 ln -s /mnt/data/flir-data/imagenet-vid/ILSVRC2015/Data data/ILSVRC/Data
 ln -s  mnt/data/flir-data/imagenet-vid/ILSVRC2015/ImageSets data/ILSVRC/ImageSets
